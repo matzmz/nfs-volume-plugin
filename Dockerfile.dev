@@ -1,0 +1,18 @@
+FROM golang:1.7-alpine
+
+COPY nfs-volume-plugin /root/go/src/nfs-volume-plugin
+WORKDIR /root/go/src/nfs-volume-plugin
+
+RUN set -ex \
+    && apk add --no-cache --virtual .build-deps \
+    gcc libc-dev git\
+    && export GOPATH=/root/go \
+    && go env \
+    && go get \
+    && go build main.go \
+#   && go build main.go --ldflags '-extldflags "-static"' \
+    && apk del .build-deps \
+    && ls -ls \
+    && cp main /nfs-volume-plugin
+
+CMD ["/nfs-volume-plugin"]
